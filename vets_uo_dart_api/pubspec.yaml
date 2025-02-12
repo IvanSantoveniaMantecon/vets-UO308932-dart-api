@@ -7,8 +7,12 @@ environment:
   sdk: ^3.6.2
 
 dependencies:
-  shelf: ^1.4.0
-  shelf_router: ^1.1.0
+  mongo_dart: ^0.10.4
+  shelf_router: ^1.1.4
+args: ^2.3.0
+shelf: ^1.4.0
+shelf_router: ^1.1.0
+mongo_dart: ^0.10.4
 
 dev_dependencies:
   http: ^1.1.0
