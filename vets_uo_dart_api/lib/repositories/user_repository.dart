@@ -1,5 +1,5 @@
 import 'package:vets_uo_dart_api/db_manager.dart';
-import 'package:vets_uo_dart_api/models/encrypt_password.dart';
+import 'package:vets_uo_dart_api/encrypt_password.dart';
 import 'package:vets_uo_dart_api/models/user.dart';
 class UsersRepository {
 static DbManager dbManager = DbManager.collection("users");
