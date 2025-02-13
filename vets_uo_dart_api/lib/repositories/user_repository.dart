@@ -19,4 +19,9 @@ static Future<dynamic> findOne(Map<String, dynamic> filter) async {
  return result;
 }
 
+static Future<dynamic> deleteOne(Map<String, dynamic> filter) async {
+  final result = await dbManager.deleteOne(filter);
+  return result;
+}
+
 }

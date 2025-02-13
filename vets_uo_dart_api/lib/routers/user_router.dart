@@ -10,7 +10,8 @@ final userRouter = Router()
 ..get('/users', _usersHandler)
 ..post('/users/signUp', _signUpHanler)
 ..post('/users/login', _loginHanler)
-..get('/users/<id>', _getUserHanler);
+..get('/users/<id>', _getUserHanler)
+  ..delete('/users/<id>', _deleteUserHandler);
 
 Future<Response> _getUserHanler(Request request) async {
 final dynamic token =
@@ -24,6 +25,34 @@ dynamic userId = ObjectId.fromHexString(request.params['id'].toString());
 final users = await UsersRepository.findOne({"_id":userId});
 return Response.ok(json.encode(users));
 }
+}
+
+Future<Response> _deleteUserHandler(Request request) async {
+  final dynamic token = request.headers.containsKey("token") ? request.headers["token"] : "";
+  final Map<String, dynamic> verifiedToken = jwt_service.UserTokenService.verifyJwt(token);
+
+  if (verifiedToken['authorized'] == false) {
+    return Response.unauthorized(json.encode({"message": "Token inválido o no autorizado"}));
+  }
+
+  try {
+    final dynamic userId = ObjectId.fromHexString(request.params['id'].toString());
+    final userExists = await UsersRepository.findOne({"_id": userId});
+
+    if (userExists == null) {
+      return Response.notFound(json.encode({"message": "Usuario no encontrado"}));
+    }
+
+    final deleteResult = await UsersRepository.deleteOne({"_id": userId});
+    
+    if (deleteResult['error'] != null) {
+      return Response.internalServerError(body: json.encode({"Usuario Eliminado"}));
+    }
+    
+    return Response.ok(json.encode({"message": "Usuario eliminado correctamente"}));
+  } catch (e) {
+    return Response.internalServerError(body: json.encode({"message": "Error inesperado", "error": e.toString()}));
+  }
 }
 
 

@@ -78,4 +78,20 @@ final result = await _collection.findOne(filter);
 return result;
 }
 
+Future<dynamic> deleteOne(Map<String, dynamic> filter) async {
+  try {
+    await connect();
+    final deleteResult = await _collection.deleteOne(filter);
+    if (deleteResult.isSuccess) {
+      return {"deletedCount": deleteResult.n};
+    } else {
+      return {"error": "No se pudo eliminar el documento"};
+    }
+  } catch (error) {
+    return {"error": "Error al eliminar el documento"};
+  } finally {
+    await close();
+  }
+}
+
 }
