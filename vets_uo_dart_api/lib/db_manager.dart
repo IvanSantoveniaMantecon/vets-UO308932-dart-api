@@ -94,4 +94,24 @@ Future<dynamic> deleteOne(Map<String, dynamic> filter) async {
   }
 }
 
+Future<dynamic> updateOne(Map<String, dynamic> filter, Map<String, dynamic> updateData) async {
+  try {
+    await connect();
+    final updateResult = await _collection.updateOne(filter, {
+      "\$set": updateData
+    });
+
+    if (updateResult.isSuccess) {
+      return {"modifiedCount": updateResult.nModified};
+    } else {
+      return {"error": "No se pudo actualizar el documento"};
+    }
+  } catch (error) {
+    return {"error": "Error al actualizar el documento"};
+  } finally {
+    await close();
+  }
+}
+
+
 }

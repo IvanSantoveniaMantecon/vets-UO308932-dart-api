@@ -11,7 +11,9 @@ final userRouter = Router()
 ..post('/users/signUp', _signUpHanler)
 ..post('/users/login', _loginHanler)
 ..get('/users/<id>', _getUserHanler)
-  ..delete('/users/<id>', _deleteUserHandler);
+..delete('/users/<id>', _deleteUserHandler)
+..put('/users/<id>', _updateUserHandler);
+
 
 Future<Response> _getUserHanler(Request request) async {
 final dynamic token =
@@ -148,4 +150,43 @@ if (user.password.isEmpty || user.password.length < 6) {
 errors.add({"surname": "Password should have at least 6 characters"});
 }
 return errors;
+}
+
+Future<Response> _updateUserHandler(Request request) async {
+  // Verificar el token
+  final dynamic token = request.headers.containsKey("token") ? request.headers["token"] : "";
+  final Map<String, dynamic> verifiedToken = jwt_service.UserTokenService.verifyJwt(token);
+
+  if (verifiedToken['authorized'] == false) {
+    return Response.unauthorized(json.encode({"message": "Token inválido o no autorizado"}));
+  }
+
+  try {
+    // Obtener el ID del usuario desde los parámetros
+    final dynamic userId = ObjectId.fromHexString(request.params['id'].toString());
+    final userExists = await UsersRepository.findOne({"_id": userId});
+
+    if (userExists == null) {
+      return Response.notFound(json.encode({"message": "Usuario no encontrado"}));
+    }
+
+    // Leer el cuerpo de la solicitud
+    final requestBody = await request.readAsString();
+    final Map<String, dynamic> updateData = json.decode(requestBody);
+
+    // Remover campos no permitidos
+    updateData.remove('_id');
+    updateData.remove('password'); // No se debe permitir actualizar la contraseña por este endpoint
+
+    // Actualizar usuario en la base de datos
+    final updateResult = await UsersRepository.updateOne({"_id": userId}, updateData);
+    
+    if (updateResult['error'] != null) {
+      return Response.internalServerError(body: json.encode({"message": "Error al actualizar el usuario"}));
+    }
+
+    return Response.ok(json.encode({"message": "Usuario actualizado correctamente"}));
+  } catch (e) {
+    return Response.internalServerError(body: json.encode({"message": "Error inesperado", "error": e.toString()}));
+  }
 }

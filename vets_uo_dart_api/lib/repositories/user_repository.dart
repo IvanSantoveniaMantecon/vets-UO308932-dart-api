@@ -24,4 +24,17 @@ static Future<dynamic> deleteOne(Map<String, dynamic> filter) async {
   return result;
 }
 
+static Future<dynamic> updateOne(Map<String, dynamic> filter, Map<String, dynamic> updateData) async {
+  try {
+    await dbManager.connect();
+    final result = await dbManager.updateOne(filter, updateData);
+    return result;
+  } catch (error) {
+    return {"error": "Error al actualizar el usuario"};
+  } finally {
+    await dbManager.close();
+  }
+}
+
+
 }
